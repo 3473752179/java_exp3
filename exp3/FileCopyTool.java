@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.util.Scanner;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -9,13 +10,28 @@ public class FileCopyTool {
     private static final long CHUNK_SIZE = 16L * 1024 * 1024;
 
     public static void main(String[] args) {
-        if (args.length != 2) {
-            printUsage();
-            return;
-        }
+        Path sourceFile;
+        Path targetDirectory;
 
-        Path sourceFile = Paths.get(args[0]).toAbsolutePath().normalize();
-        Path targetDirectory = Paths.get(args[1]).toAbsolutePath().normalize();
+        if (args.length == 2) {
+            sourceFile = Paths.get(args[0]).toAbsolutePath().normalize();
+            targetDirectory = Paths.get(args[1]).toAbsolutePath().normalize();
+        } else {
+            Scanner scanner = new Scanner(System.in);
+            System.out.println("请输入源文件路径:");
+            String sourceInput = scanner.nextLine().trim();
+            System.out.println("请输入目标文件夹路径:");
+            String targetInput = scanner.nextLine().trim();
+
+            if (sourceInput.isEmpty() || targetInput.isEmpty()) {
+                System.err.println("输入不能为空。");
+                printUsage();
+                return;
+            }
+
+            sourceFile = Paths.get(sourceInput).toAbsolutePath().normalize();
+            targetDirectory = Paths.get(targetInput).toAbsolutePath().normalize();
+        }
 
         try {
             copyFile(sourceFile, targetDirectory);
@@ -75,7 +91,8 @@ public class FileCopyTool {
     }
 
     private static void printUsage() {
-        System.out.println("用法:");
+        System.out.println("可直接运行后按提示输入路径，或使用命令行参数。");
+        System.out.println("命令行用法:");
         System.out.println("java FileCopyTool <源文件路径> <目标文件夹路径>");
         System.out.println("示例:");
         System.out.println("java FileCopyTool D:\\data\\a.zip D:\\backup");
